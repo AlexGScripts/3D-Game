@@ -26,11 +26,13 @@ scene.add(player);
 const platforms = [];
 const killBricks = [];
 const spinners = [];
+const checkpoints = [];
 
 // Materials
 const platformMat = new THREE.MeshStandardMaterial({ color: 0x00ccff });
 const killBrickMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 const spinnerMat = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+const checkpointMat = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 
 // Platform helper
 function createPlatform(x, y, z, w = 5, d = 5) {
@@ -59,6 +61,15 @@ function createSpinner(x, y, z) {
   spinners.push(mesh);
 }
 
+// Checkpoint helper
+function createCheckpoint(x, y, z) {
+  const geo = new THREE.BoxGeometry(1, 2, 1);
+  const mesh = new THREE.Mesh(geo, checkpointMat);
+  mesh.position.set(x, y + 1, z);
+  scene.add(mesh);
+  checkpoints.push(mesh);
+}
+
 // Build the level
 createPlatform(0, 0, 0);
 createPlatform(6, 2, -3);
@@ -69,11 +80,22 @@ createSpinner(20, 8, 0);
 createPlatform(24, 10, 0);
 createKillBrick(30, 9, 0);
 createPlatform(30, 12, 0);
+createCheckpoint(36, 14, -3);  // First checkpoint
+createPlatform(42, 16, 0);
+createKillBrick(48, 15, 0);
+createPlatform(54, 17, 0);
+createSpinner(60, 18, 0);
+createPlatform(66, 20, 0);
+createKillBrick(72, 18, 0);
+createPlatform(78, 22, -3);
+createCheckpoint(84, 24, 0);  // Second checkpoint
+createPlatform(90, 26, 0);
 
 // Controls
 const keys = {};
 let velocityY = 0;
 let onGround = false;
+let respawnPoint = new THREE.Vector3(0, 5, 0); // Initial spawn position
 
 document.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
 document.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
@@ -83,6 +105,15 @@ function checkCollision(a, b) {
   const aBox = new THREE.Box3().setFromObject(a);
   const bBox = new THREE.Box3().setFromObject(b);
   return aBox.intersectsBox(bBox);
+}
+
+// Checkpoint collision
+function checkCheckpoint(player) {
+  for (const checkpoint of checkpoints) {
+    if (checkCollision(player, checkpoint)) {
+      respawnPoint = checkpoint.position.clone();  // Update respawn point
+    }
+  }
 }
 
 // Game loop
@@ -115,6 +146,9 @@ function animate() {
     }
   }
 
+  // Check checkpoints
+  checkCheckpoint(player);
+
   // Jump
   if (onGround && keys[' ']) {
     velocityY = 0.4;
@@ -123,7 +157,7 @@ function animate() {
   // Killbricks
   for (const kill of killBricks) {
     if (checkCollision(player, kill)) {
-      player.position.set(0, 5, 0);
+      player.position.copy(respawnPoint);  // Reset to last checkpoint
       velocityY = 0;
     }
   }
@@ -132,14 +166,14 @@ function animate() {
   for (const spin of spinners) {
     spin.rotation.y += 0.05;
     if (checkCollision(player, spin)) {
-      player.position.set(0, 5, 0);
+      player.position.copy(respawnPoint);  // Reset to last checkpoint
       velocityY = 0;
     }
   }
 
   // Fall reset
   if (player.position.y < -10) {
-    player.position.set(0, 5, 0);
+    player.position.copy(respawnPoint);  // Reset to last checkpoint
     velocityY = 0;
   }
 
