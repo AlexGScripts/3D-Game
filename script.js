@@ -1,5 +1,5 @@
 // Updated JavaScript for a longer 3D Obby game with improved controls and performance
-// Includes: 10 checkpoints, smoother movement, smaller jumps, and at least 500 lines of code
+// Includes: 10 checkpoints, smoother movement, faster player speed, smaller jumps, and at least 500 lines of code
 
 // --- Setup ---
 const scene = new THREE.Scene();
@@ -98,8 +98,8 @@ joystick.addEventListener('touchstart', e => {
 joystick.addEventListener('touchmove', e => {
   const dx = e.touches[0].clientX - joystickStart.x;
   const dy = e.touches[0].clientY - joystickStart.y;
-  player.position.x += dx * 0.005;
-  player.position.z -= dy * 0.005;
+  player.position.x += dx * 0.01;
+  player.position.z -= dy * 0.01;
 });
 
 joystick.addEventListener('touchend', () => joystickActive = false);
@@ -127,7 +127,7 @@ function checkCheckpoint() {
 function animate() {
   requestAnimationFrame(animate);
 
-  const speed = 0.08;
+  const speed = 0.2; // faster movement speed
   if (keys['w']) player.position.z -= speed;
   if (keys['s']) player.position.z += speed;
   if (keys['a']) player.position.x -= speed;
@@ -162,8 +162,8 @@ function animate() {
   for (const spin of spinners) {
     spin.rotation.y += 0.05;
     if (checkCollision(player, spin)) {
-      player.position.x += 0.1 * Math.sin(spin.rotation.y);
-      player.position.z += 0.1 * Math.cos(spin.rotation.y);
+      player.position.x += 0.15 * Math.sin(spin.rotation.y);
+      player.position.z += 0.15 * Math.cos(spin.rotation.y);
     }
   }
 
