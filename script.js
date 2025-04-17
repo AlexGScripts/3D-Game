@@ -22,25 +22,55 @@ const player = new THREE.Mesh(playerGeometry, playerMaterial);
 player.position.set(0, 5, 0);
 scene.add(player);
 
-// Platforms
-const platformMaterial = new THREE.MeshStandardMaterial({ color: 0x00ccff });
+// Arrays to hold game objects
 const platforms = [];
+const killBricks = [];
+const spinners = [];
 
+// Materials
+const platformMat = new THREE.MeshStandardMaterial({ color: 0x00ccff });
+const killBrickMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+const spinnerMat = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+
+// Platform helper
 function createPlatform(x, y, z, w = 5, d = 5) {
-  const geometry = new THREE.BoxGeometry(w, 1, d);
-  const mesh = new THREE.Mesh(geometry, platformMaterial);
+  const geo = new THREE.BoxGeometry(w, 1, d);
+  const mesh = new THREE.Mesh(geo, platformMat);
   mesh.position.set(x, y, z);
   scene.add(mesh);
   platforms.push(mesh);
 }
 
+// Kill brick helper
+function createKillBrick(x, y, z, w = 3, d = 3) {
+  const geo = new THREE.BoxGeometry(w, 0.5, d);
+  const mesh = new THREE.Mesh(geo, killBrickMat);
+  mesh.position.set(x, y, z);
+  scene.add(mesh);
+  killBricks.push(mesh);
+}
+
+// Spinning platform helper
+function createSpinner(x, y, z) {
+  const geo = new THREE.BoxGeometry(8, 0.5, 0.5);
+  const mesh = new THREE.Mesh(geo, spinnerMat);
+  mesh.position.set(x, y, z);
+  scene.add(mesh);
+  spinners.push(mesh);
+}
+
+// Build the level
 createPlatform(0, 0, 0);
 createPlatform(6, 2, -3);
+createKillBrick(12, 1, 0);
 createPlatform(12, 4, 0);
 createPlatform(18, 6, -3);
-createPlatform(24, 8, 0);
+createSpinner(20, 8, 0);
+createPlatform(24, 10, 0);
+createKillBrick(30, 9, 0);
+createPlatform(30, 12, 0);
 
-// Movement & physics
+// Controls
 const keys = {};
 let velocityY = 0;
 let onGround = false;
@@ -48,11 +78,11 @@ let onGround = false;
 document.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
 document.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
 
-// Helper function for collisions
-function checkCollision(player, platform) {
-  const playerBox = new THREE.Box3().setFromObject(player);
-  const platformBox = new THREE.Box3().setFromObject(platform);
-  return playerBox.intersectsBox(platformBox);
+// Collision checker
+function checkCollision(a, b) {
+  const aBox = new THREE.Box3().setFromObject(a);
+  const bBox = new THREE.Box3().setFromObject(b);
+  return aBox.intersectsBox(bBox);
 }
 
 // Game loop
@@ -71,10 +101,10 @@ function animate() {
   player.position.y += velocityY;
   onGround = false;
 
-  // Check collisions with all platforms
-  for (const platform of platforms) {
-    if (checkCollision(player, platform)) {
-      const platformTop = platform.position.y + 0.5;
+  // Check platform collisions
+  for (const plat of platforms) {
+    if (checkCollision(player, plat)) {
+      const platformTop = plat.position.y + 0.5;
       const playerBottom = player.position.y - 0.5;
 
       if (playerBottom <= platformTop) {
@@ -88,6 +118,23 @@ function animate() {
   // Jump
   if (onGround && keys[' ']) {
     velocityY = 0.4;
+  }
+
+  // Killbricks
+  for (const kill of killBricks) {
+    if (checkCollision(player, kill)) {
+      player.position.set(0, 5, 0);
+      velocityY = 0;
+    }
+  }
+
+  // Spinners rotate and act like killbricks
+  for (const spin of spinners) {
+    spin.rotation.y += 0.05;
+    if (checkCollision(player, spin)) {
+      player.position.set(0, 5, 0);
+      velocityY = 0;
+    }
   }
 
   // Fall reset
@@ -106,7 +153,7 @@ function animate() {
 }
 animate();
 
-// Resize handling
+// Resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
