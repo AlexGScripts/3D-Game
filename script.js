@@ -32,7 +32,7 @@ const checkpoints = [];
 const platformMat = new THREE.MeshStandardMaterial({ color: 0x00ccff });
 const killBrickMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 const spinnerMat = new THREE.MeshStandardMaterial({ color: 0xffff00 });
-const checkpointMat = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+const checkpointMat = new THREE.MeshStandardMaterial({ color: 0x0000ff }); // Blue checkpoint material
 
 // Platform helper
 function createPlatform(x, y, z, w = 5, d = 5) {
@@ -61,9 +61,9 @@ function createSpinner(x, y, z) {
   spinners.push(mesh);
 }
 
-// Checkpoint helper
+// Checkpoint helper (blue and bigger)
 function createCheckpoint(x, y, z) {
-  const geo = new THREE.BoxGeometry(1, 2, 1);
+  const geo = new THREE.BoxGeometry(3, 1, 3); // Larger checkpoint
   const mesh = new THREE.Mesh(geo, checkpointMat);
   mesh.position.set(x, y + 1, z);
   scene.add(mesh);
@@ -80,7 +80,7 @@ createSpinner(20, 8, 0);
 createPlatform(24, 10, 0);
 createKillBrick(30, 9, 0);
 createPlatform(30, 12, 0);
-createCheckpoint(36, 14, -3);  // First checkpoint
+createCheckpoint(36, 14, -3);  // First checkpoint (larger and blue)
 createPlatform(42, 16, 0);
 createKillBrick(48, 15, 0);
 createPlatform(54, 17, 0);
@@ -88,7 +88,7 @@ createSpinner(60, 18, 0);
 createPlatform(66, 20, 0);
 createKillBrick(72, 18, 0);
 createPlatform(78, 22, -3);
-createCheckpoint(84, 24, 0);  // Second checkpoint
+createCheckpoint(84, 24, 0);  // Second checkpoint (larger and blue)
 createPlatform(90, 26, 0);
 
 // Controls
