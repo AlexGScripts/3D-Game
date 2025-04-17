@@ -61,13 +61,19 @@ function createSpinner(x, y, z) {
   spinners.push(mesh);
 }
 
-// Checkpoint helper (blue and bigger)
+// Checkpoint helper (blue and placed on top of a platform)
 function createCheckpoint(x, y, z) {
-  const geo = new THREE.BoxGeometry(3, 1, 3); // Larger checkpoint
-  const mesh = new THREE.Mesh(geo, checkpointMat);
-  mesh.position.set(x, y + 1, z);
-  scene.add(mesh);
-  checkpoints.push(mesh);
+  const platformGeo = new THREE.BoxGeometry(5, 1, 5); // Platform size
+  const platformMesh = new THREE.Mesh(platformGeo, checkpointMat);
+  platformMesh.position.set(x, y, z); // Blue platform for checkpoint
+  scene.add(platformMesh);
+  platforms.push(platformMesh); // Add platform to the platform array
+
+  const checkpointGeo = new THREE.BoxGeometry(3, 1, 3); // Larger checkpoint
+  const checkpointMesh = new THREE.Mesh(checkpointGeo, checkpointMat);
+  checkpointMesh.position.set(x, y + 1.5, z); // Position above the platform
+  scene.add(checkpointMesh);
+  checkpoints.push(checkpointMesh); // Add checkpoint to the checkpoint array
 }
 
 // Build the level
@@ -80,7 +86,9 @@ createSpinner(20, 8, 0);
 createPlatform(24, 10, 0);
 createKillBrick(30, 9, 0);
 createPlatform(30, 12, 0);
-createCheckpoint(36, 14, -3);  // First checkpoint (larger and blue)
+
+// Place the checkpoint on top of a blue platform (larger)
+createCheckpoint(36, 14, -3);  // First checkpoint (larger and blue platform)
 createPlatform(42, 16, 0);
 createKillBrick(48, 15, 0);
 createPlatform(54, 17, 0);
@@ -88,7 +96,9 @@ createSpinner(60, 18, 0);
 createPlatform(66, 20, 0);
 createKillBrick(72, 18, 0);
 createPlatform(78, 22, -3);
-createCheckpoint(84, 24, 0);  // Second checkpoint (larger and blue)
+
+// Place the second checkpoint on top of a blue platform (larger)
+createCheckpoint(84, 24, 0);  // Second checkpoint (larger and blue platform)
 createPlatform(90, 26, 0);
 
 // Controls
