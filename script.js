@@ -142,6 +142,23 @@ jumpButton.addEventListener('touchstart', () => {
   velocityY = 0.4;
 });
 
+// WASD control fixes
+let moveSpeed = 0.1;
+function handleDesktopControls() {
+  if (keys['w']) {
+    player.position.z -= moveSpeed;
+  }
+  if (keys['s']) {
+    player.position.z += moveSpeed;
+  }
+  if (keys['a']) {
+    player.position.x -= moveSpeed;
+  }
+  if (keys['d']) {
+    player.position.x += moveSpeed;
+  }
+}
+
 // Collision checker
 function checkCollision(a, b) {
   const aBox = new THREE.Box3().setFromObject(a);
@@ -161,6 +178,9 @@ function checkCheckpoint(player) {
 // Game loop
 function animate() {
   requestAnimationFrame(animate);
+
+  // Handle desktop controls (WASD)
+  handleDesktopControls();
 
   // Gravity
   velocityY -= 0.02;
