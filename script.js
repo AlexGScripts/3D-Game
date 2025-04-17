@@ -86,8 +86,6 @@ createSpinner(20, 8, 0);
 createPlatform(24, 10, 0);
 createKillBrick(30, 9, 0);
 createPlatform(30, 12, 0);
-
-// Place the checkpoint on top of a blue platform (larger)
 createCheckpoint(36, 14, -3);  // First checkpoint (larger and blue platform)
 createPlatform(42, 16, 0);
 createKillBrick(48, 15, 0);
@@ -96,8 +94,6 @@ createSpinner(60, 18, 0);
 createPlatform(66, 20, 0);
 createKillBrick(72, 18, 0);
 createPlatform(78, 22, -3);
-
-// Place the second checkpoint on top of a blue platform (larger)
 createCheckpoint(84, 24, 0);  // Second checkpoint (larger and blue platform)
 createPlatform(90, 26, 0);
 
@@ -109,6 +105,42 @@ let respawnPoint = new THREE.Vector3(0, 5, 0); // Initial spawn position
 
 document.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
 document.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+
+// Touch controls
+let joystickActive = false;
+let joystickPosition = { x: 0, y: 0 };
+
+const joystick = document.getElementById('joystick');
+const stick = document.getElementById('stick');
+const jumpButton = document.getElementById('jumpButton');
+
+joystick.addEventListener('touchstart', (e) => {
+  joystickActive = true;
+  const touch = e.touches[0];
+  joystickPosition.x = touch.clientX;
+  joystickPosition.y = touch.clientY;
+});
+
+joystick.addEventListener('touchmove', (e) => {
+  const touch = e.touches[0];
+  const deltaX = touch.clientX - joystickPosition.x;
+  const deltaY = touch.clientY - joystickPosition.y;
+  
+  if (Math.abs(deltaX) > 20) {
+    player.position.x += deltaX * 0.01;
+  }
+  if (Math.abs(deltaY) > 20) {
+    player.position.z -= deltaY * 0.01;
+  }
+});
+
+joystick.addEventListener('touchend', () => {
+  joystickActive = false;
+});
+
+jumpButton.addEventListener('touchstart', () => {
+  velocityY = 0.4;
+});
 
 // Collision checker
 function checkCollision(a, b) {
@@ -129,13 +161,6 @@ function checkCheckpoint(player) {
 // Game loop
 function animate() {
   requestAnimationFrame(animate);
-
-  // Movement
-  const speed = 0.2;
-  if (keys['a']) player.position.x -= speed;
-  if (keys['d']) player.position.x += speed;
-  if (keys['w']) player.position.z -= speed;
-  if (keys['s']) player.position.z += speed;
 
   // Gravity
   velocityY -= 0.02;
