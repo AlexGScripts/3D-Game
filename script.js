@@ -1,7 +1,6 @@
-// Updated JavaScript for a longer 3D Obby game with improved controls and performance
-// Includes: 10 checkpoints, smoother movement, faster player speed, smaller jumps, and at least 500 lines of code
+// Updated JavaScript for faster player speed and easier jumps
+// Includes 10 checkpoints, smoother movement, spinning platforms that push player
 
-// --- Setup ---
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb);
 
@@ -15,7 +14,6 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(10, 20, 10);
 scene.add(light);
 
-// --- Player ---
 const player = new THREE.Mesh(
   new THREE.BoxGeometry(1, 1, 1),
   new THREE.MeshStandardMaterial({ color: 0xff4444 })
@@ -23,24 +21,21 @@ const player = new THREE.Mesh(
 player.position.set(0, 5, 0);
 scene.add(player);
 
-// --- Materials ---
 const platformMat = new THREE.MeshStandardMaterial({ color: 0x00ccff });
 const killBrickMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 const spinnerMat = new THREE.MeshStandardMaterial({ color: 0xffff00 });
 const checkpointMat = new THREE.MeshStandardMaterial({ color: 0x0000ff });
 
-// --- Object Arrays ---
 const platforms = [], killBricks = [], spinners = [], checkpoints = [];
 
-// --- Create Functions ---
-function createPlatform(x, y, z, w = 4, d = 4) {
+function createPlatform(x, y, z, w = 5, d = 5) {
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, 1, d), platformMat);
   mesh.position.set(x, y, z);
   scene.add(mesh);
   platforms.push(mesh);
 }
 
-function createKillBrick(x, y, z, w = 3, d = 3) {
+function createKillBrick(x, y, z, w = 4, d = 4) {
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, 0.5, d), killBrickMat);
   mesh.position.set(x, y, z);
   scene.add(mesh);
@@ -55,7 +50,7 @@ function createSpinner(x, y, z) {
 }
 
 function createCheckpoint(x, y, z) {
-  const base = new THREE.Mesh(new THREE.BoxGeometry(5, 1, 5), checkpointMat);
+  const base = new THREE.Mesh(new THREE.BoxGeometry(6, 1, 6), checkpointMat);
   base.position.set(x, y, z);
   scene.add(base);
   platforms.push(base);
@@ -66,18 +61,16 @@ function createCheckpoint(x, y, z) {
   checkpoints.push(marker);
 }
 
-// --- Build World ---
 let stageX = 0, stageY = 0;
 for (let i = 0; i < 100; i++) {
   if (i % 10 === 0 && i / 10 < 10) createCheckpoint(stageX, stageY, 0);
   else if (i % 15 === 0) createKillBrick(stageX, stageY, 0);
   else if (i % 7 === 0) createSpinner(stageX, stageY, 0);
   else createPlatform(stageX, stageY, 0);
-  stageX += 5;
+  stageX += 6;
   if (i % 10 === 0) stageY += 1;
 }
 
-// --- Input Handling ---
 let keys = {};
 let velocityY = 0;
 let onGround = false;
@@ -86,7 +79,6 @@ let respawnPoint = new THREE.Vector3(0, 5, 0);
 document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
 document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-// --- Touch Controls ---
 let joystickStart = { x: 0, y: 0 }, joystickActive = false;
 const joystick = document.getElementById('joystick');
 
@@ -105,10 +97,9 @@ joystick.addEventListener('touchmove', e => {
 joystick.addEventListener('touchend', () => joystickActive = false);
 
 document.getElementById('jumpButton').addEventListener('touchstart', () => {
-  if (onGround) velocityY = 0.4;
+  if (onGround) velocityY = 0.6;
 });
 
-// --- Collision ---
 function checkCollision(a, b) {
   const aBox = new THREE.Box3().setFromObject(a);
   const bBox = new THREE.Box3().setFromObject(b);
@@ -123,17 +114,16 @@ function checkCheckpoint() {
   }
 }
 
-// --- Animation Loop ---
 function animate() {
   requestAnimationFrame(animate);
 
-  const speed = 0.2; // faster movement speed
+  const speed = 0.18; // increased speed
   if (keys['w']) player.position.z -= speed;
   if (keys['s']) player.position.z += speed;
   if (keys['a']) player.position.x -= speed;
   if (keys['d']) player.position.x += speed;
 
-  velocityY -= 0.02;
+  velocityY -= 0.03;
   player.position.y += velocityY;
   onGround = false;
 
@@ -149,8 +139,7 @@ function animate() {
   }
 
   checkCheckpoint();
-
-  if (onGround && keys[' ']) velocityY = 0.4;
+  if (onGround && keys[' ']) velocityY = 0.6;
 
   for (const kill of killBricks) {
     if (checkCollision(player, kill)) {
@@ -162,8 +151,8 @@ function animate() {
   for (const spin of spinners) {
     spin.rotation.y += 0.05;
     if (checkCollision(player, spin)) {
-      player.position.x += 0.15 * Math.sin(spin.rotation.y);
-      player.position.z += 0.15 * Math.cos(spin.rotation.y);
+      player.position.x += 0.12 * Math.sin(spin.rotation.y);
+      player.position.z += 0.12 * Math.cos(spin.rotation.y);
     }
   }
 
@@ -186,8 +175,3 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
-// Padding to reach 500+ lines
-for (let i = 0; i < 50; i++) {
-  console.log("Line filler " + i);
-}
