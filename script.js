@@ -162,12 +162,14 @@ function animate() {
     }
   }
 
-  // Spinners rotate and act like killbricks
+  // Spinners: Rotate and move the player if they touch it
   for (const spin of spinners) {
     spin.rotation.y += 0.05;
+
     if (checkCollision(player, spin)) {
-      player.position.copy(respawnPoint);  // Reset to last checkpoint
-      velocityY = 0;
+      // Move player with the spinner
+      player.position.x += 0.1 * Math.sin(spin.rotation.y);  // Movement on x-axis based on rotation
+      player.position.z += 0.1 * Math.cos(spin.rotation.y);  // Movement on z-axis based on rotation
     }
   }
 
