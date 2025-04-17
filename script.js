@@ -126,11 +126,11 @@ joystick.addEventListener('touchmove', (e) => {
   const deltaX = touch.clientX - joystickPosition.x;
   const deltaY = touch.clientY - joystickPosition.y;
   
-  if (Math.abs(deltaX) > 20) {
-    player.position.x += deltaX * 0.01;
+  if (Math.abs(deltaX) > 10) {
+    player.position.x += deltaX * 0.002; // Slower movement multiplier
   }
-  if (Math.abs(deltaY) > 20) {
-    player.position.z -= deltaY * 0.01;
+  if (Math.abs(deltaY) > 10) {
+    player.position.z -= deltaY * 0.002; // Slower movement multiplier
   }
 });
 
@@ -143,7 +143,7 @@ jumpButton.addEventListener('touchstart', () => {
 });
 
 // WASD control fixes
-let moveSpeed = 0.1;
+let moveSpeed = 0.05; // Slower movement speed for WASD
 function handleDesktopControls() {
   if (keys['w']) {
     player.position.z -= moveSpeed;
@@ -223,8 +223,8 @@ function animate() {
 
     if (checkCollision(player, spin)) {
       // Move player with the spinner
-      player.position.x += 0.1 * Math.sin(spin.rotation.y);  // Movement on x-axis based on rotation
-      player.position.z += 0.1 * Math.cos(spin.rotation.y);  // Movement on z-axis based on rotation
+      player.position.x += 0.05 * Math.sin(spin.rotation.y);  // Slow movement on x-axis
+      player.position.z += 0.05 * Math.cos(spin.rotation.y);  // Slow movement on z-axis
     }
   }
 
