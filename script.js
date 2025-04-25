@@ -1,5 +1,4 @@
-// Updated JavaScript for faster player speed, better jump distances, more checkpoints, and levels
-// Includes 10 checkpoints, smoother movement, spinning platforms that push player
+// Updated JavaScript with smaller kill bricks, more kill bricks, turned stages, and small gaps
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb);
@@ -55,7 +54,7 @@ function createPlatform(x, y, z, w = 5, d = 5) {
   platforms.push(mesh);
 }
 
-function createKillBrick(x, y, z, w = 4, d = 4) {
+function createKillBrick(x, y, z, w = 2, d = 2) { // Smaller kill brick size
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, 0.5, d), killBrickMat);
   mesh.position.set(x, y, z);
   scene.add(mesh);
@@ -85,14 +84,26 @@ let stageX = 0, stageY = 0;
 let level = 1; // Track level progression
 const maxLevel = 3; // Example max levels
 
-// Create multiple levels with different layouts
+// Create multiple levels with different layouts and turns
 function createLevel() {
   const levelWidth = 6; // Distance between each platform
+  let direction = 1; // Controls whether the stage goes left or right
   for (let i = 0; i < 100; i++) {
     if (i % 10 === 0 && i / 10 < 10) createCheckpoint(stageX, stageY, 0);
-    else if (i % 15 === 0 && Math.random() > 0.3) createKillBrick(stageX, stageY, 0); // Lower chance of kill brick
-    else if (i % 7 === 0 && Math.random() > 0.4) createSpinner(stageX, stageY, 0); // Lower chance of spinner
+    else if (i % 15 === 0 && Math.random() > 0.3) createKillBrick(stageX, stageY, 0); // More kill bricks
+    else if (i % 7 === 0 && Math.random() > 0.4) createSpinner(stageX, stageY, 0); // More spinners
     else createPlatform(stageX, stageY, 0);
+
+    // Add small gaps between parts for extra difficulty
+    if (i % 5 === 0 && Math.random() > 0.5) {
+      stageX += 2; // Add a small gap
+    }
+
+    // Add turns in the stage layout
+    if (i % 20 === 0 && Math.random() > 0.5) {
+      direction = direction === 1 ? -1 : 1; // Change direction for turn
+      stageX += direction * 4; // Shift position to create a turn
+    }
 
     stageX += levelWidth;
     if (i % 10 === 0) stageY += 1;
