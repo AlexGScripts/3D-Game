@@ -1,4 +1,4 @@
-// Updated JavaScript with obby parts, smaller kill bricks, more kill bricks, turns, and gaps
+// Updated JavaScript with more levels, more kill bricks, and more obstacles!
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb);
@@ -13,12 +13,11 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(10, 20, 10);
 scene.add(light);
 
-// Player (bike and rider) setup
+// Player setup
 const playerGroup = new THREE.Group();
-const bikeMaterial = new THREE.MeshStandardMaterial({ color: 0x555555 }); // Color for the bike
-const riderMaterial = new THREE.MeshStandardMaterial({ color: 0xff4444 }); // Color for the rider
+const bikeMaterial = new THREE.MeshStandardMaterial({ color: 0x555555 }); // Bike color
+const riderMaterial = new THREE.MeshStandardMaterial({ color: 0xff4444 }); // Rider color
 
-// Simple bike model (box for bike and a box for the rider)
 const bikeBody = new THREE.Mesh(new THREE.BoxGeometry(3, 0.5, 1), bikeMaterial);
 const wheelFront = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.2, 16), bikeMaterial);
 const wheelBack = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.2, 16), bikeMaterial);
@@ -82,7 +81,7 @@ function createCheckpoint(x, y, z) {
 
 let stageX = 0, stageY = 0;
 let level = 1; // Track level progression
-const maxLevel = 3; // Example max levels
+const maxLevel = 4; // Example max levels (4 levels in total)
 
 // Create multiple levels with different layouts and turns
 function createLevel() {
@@ -90,7 +89,7 @@ function createLevel() {
   let direction = 1; // Controls whether the stage goes left or right
   for (let i = 0; i < 100; i++) {
     if (i % 10 === 0 && i / 10 < 10) createCheckpoint(stageX, stageY, 0);
-    else if (i % 15 === 0 && Math.random() > 0.3) createKillBrick(stageX, stageY, 0); // More kill bricks
+    else if (i % 8 === 0 && Math.random() > 0.2) createKillBrick(stageX, stageY, 0); // More kill bricks
     else if (i % 7 === 0 && Math.random() > 0.4) createSpinner(stageX, stageY, 0); // More spinners
     else createPlatform(stageX, stageY, 0);
 
@@ -100,7 +99,7 @@ function createLevel() {
     }
 
     // Add turns in the stage layout
-    if (i % 20 === 0 && Math.random() > 0.5) {
+    if (i % 15 === 0 && Math.random() > 0.5) {
       direction = direction === 1 ? -1 : 1; // Change direction for turn
       stageX += direction * 4; // Shift position to create a turn
     }
@@ -121,6 +120,14 @@ function createLevel() {
 }
 
 createLevel();
+
+// Function to create multiple levels with progression
+function createLevels() {
+  createLevel(); // Start with the first level
+  if (level < maxLevel) createLevel(); // Add more levels
+}
+
+createLevels();
 
 let keys = {};
 let velocityY = 0;
@@ -168,7 +175,7 @@ function checkCheckpoint() {
 function animate() {
   requestAnimationFrame(animate);
 
-  const speed = 0.18; // increased speed
+  const speed = 0.18; // Increased speed
   if (keys['w']) playerGroup.position.z -= speed;
   if (keys['s']) playerGroup.position.z += speed;
   if (keys['a']) playerGroup.position.x -= speed;
