@@ -1,4 +1,4 @@
-// Updated JavaScript with more levels, more kill bricks, and more obstacles!
+// Updated JavaScript to fix the impossible spin-platform-kill-brick scenario
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb);
@@ -90,8 +90,14 @@ function createLevel() {
   for (let i = 0; i < 100; i++) {
     if (i % 10 === 0 && i / 10 < 10) createCheckpoint(stageX, stageY, 0);
     else if (i % 8 === 0 && Math.random() > 0.2) createKillBrick(stageX, stageY, 0); // More kill bricks
-    else if (i % 7 === 0 && Math.random() > 0.4) createSpinner(stageX, stageY, 0); // More spinners
+    else if (i % 7 === 0 && Math.random() > 0.4) createSpinner(stageX, stageY + 2, 0); // Moved spinner higher for better placement
     else createPlatform(stageX, stageY, 0);
+
+    // Ensure proper space between spinning platform and kill brick
+    if (i % 7 === 0 && Math.random() > 0.5) {
+      // If there's a spinner, ensure a gap before the kill brick
+      stageX += 8; // More space between spinner and kill brick
+    }
 
     // Add small gaps between parts for extra difficulty
     if (i % 5 === 0 && Math.random() > 0.5) {
@@ -219,17 +225,6 @@ function animate() {
     velocityY = 0;
   }
 
-  camera.position.x = playerGroup.position.x;
-  camera.position.y = playerGroup.position.y + 5;
-  camera.position.z = playerGroup.position.z + 10;
-  camera.lookAt(playerGroup.position);
-
   renderer.render(scene, camera);
 }
 animate();
-
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
