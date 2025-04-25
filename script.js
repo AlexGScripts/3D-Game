@@ -1,4 +1,4 @@
-// Updated JavaScript for faster player speed and easier jumps
+// Updated JavaScript for faster player speed, semi-realistic bike, and visible player
 // Includes 10 checkpoints, smoother movement, spinning platforms that push player
 
 const scene = new THREE.Scene();
@@ -14,12 +14,32 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(10, 20, 10);
 scene.add(light);
 
-const player = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshStandardMaterial({ color: 0xff4444 })
-);
-player.position.set(0, 5, 0);
-scene.add(player);
+// Player (bike and rider) setup
+const playerGroup = new THREE.Group();
+const bikeMaterial = new THREE.MeshStandardMaterial({ color: 0x555555 }); // Color for the bike
+const riderMaterial = new THREE.MeshStandardMaterial({ color: 0xff4444 }); // Color for the rider
+
+// Simple bike model (box for bike and a box for the rider)
+const bikeBody = new THREE.Mesh(new THREE.BoxGeometry(3, 0.5, 1), bikeMaterial);
+const wheelFront = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.2, 16), bikeMaterial);
+const wheelBack = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.2, 16), bikeMaterial);
+const rider = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.5, 0.5), riderMaterial);
+
+wheelFront.rotation.z = Math.PI / 2;
+wheelBack.rotation.z = Math.PI / 2;
+
+wheelFront.position.set(1.5, -0.3, 0.5);
+wheelBack.position.set(-1.5, -0.3, 0.5);
+
+rider.position.set(0, 0.8, 0);
+
+playerGroup.add(bikeBody);
+playerGroup.add(wheelFront);
+playerGroup.add(wheelBack);
+playerGroup.add(rider);
+playerGroup.position.set(0, 5, 0);
+
+scene.add(playerGroup);
 
 const platformMat = new THREE.MeshStandardMaterial({ color: 0x00ccff });
 const killBrickMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
@@ -90,8 +110,8 @@ joystick.addEventListener('touchstart', e => {
 joystick.addEventListener('touchmove', e => {
   const dx = e.touches[0].clientX - joystickStart.x;
   const dy = e.touches[0].clientY - joystickStart.y;
-  player.position.x += dx * 0.01;
-  player.position.z -= dy * 0.01;
+  playerGroup.position.x += dx * 0.01;
+  playerGroup.position.z -= dy * 0.01;
 });
 
 joystick.addEventListener('touchend', () => joystickActive = false);
@@ -108,7 +128,7 @@ function checkCollision(a, b) {
 
 function checkCheckpoint() {
   for (const cp of checkpoints) {
-    if (checkCollision(player, cp)) {
+    if (checkCollision(playerGroup, cp)) {
       respawnPoint = cp.position.clone();
     }
   }
@@ -118,20 +138,20 @@ function animate() {
   requestAnimationFrame(animate);
 
   const speed = 0.18; // increased speed
-  if (keys['w']) player.position.z -= speed;
-  if (keys['s']) player.position.z += speed;
-  if (keys['a']) player.position.x -= speed;
-  if (keys['d']) player.position.x += speed;
+  if (keys['w']) playerGroup.position.z -= speed;
+  if (keys['s']) playerGroup.position.z += speed;
+  if (keys['a']) playerGroup.position.x -= speed;
+  if (keys['d']) playerGroup.position.x += speed;
 
   velocityY -= 0.03;
-  player.position.y += velocityY;
+  playerGroup.position.y += velocityY;
   onGround = false;
 
   for (const plat of platforms) {
-    if (checkCollision(player, plat)) {
+    if (checkCollision(playerGroup, plat)) {
       const top = plat.position.y + 0.5;
-      if (player.position.y - 0.5 <= top) {
-        player.position.y = top + 0.5;
+      if (playerGroup.position.y - 0.5 <= top) {
+        playerGroup.position.y = top + 0.5;
         velocityY = 0;
         onGround = true;
       }
@@ -142,29 +162,29 @@ function animate() {
   if (onGround && keys[' ']) velocityY = 0.6;
 
   for (const kill of killBricks) {
-    if (checkCollision(player, kill)) {
-      player.position.copy(respawnPoint);
+    if (checkCollision(playerGroup, kill)) {
+      playerGroup.position.copy(respawnPoint);
       velocityY = 0;
     }
   }
 
   for (const spin of spinners) {
     spin.rotation.y += 0.05;
-    if (checkCollision(player, spin)) {
-      player.position.x += 0.12 * Math.sin(spin.rotation.y);
-      player.position.z += 0.12 * Math.cos(spin.rotation.y);
+    if (checkCollision(playerGroup, spin)) {
+      playerGroup.position.x += 0.12 * Math.sin(spin.rotation.y);
+      playerGroup.position.z += 0.12 * Math.cos(spin.rotation.y);
     }
   }
 
-  if (player.position.y < -10) {
-    player.position.copy(respawnPoint);
+  if (playerGroup.position.y < -10) {
+    playerGroup.position.copy(respawnPoint);
     velocityY = 0;
   }
 
-  camera.position.x = player.position.x;
-  camera.position.y = player.position.y + 5;
-  camera.position.z = player.position.z + 10;
-  camera.lookAt(player.position);
+  camera.position.x = playerGroup.position.x;
+  camera.position.y = playerGroup.position.y + 5;
+  camera.position.z = playerGroup.position.z + 10;
+  camera.lookAt(playerGroup.position);
 
   renderer.render(scene, camera);
 }
