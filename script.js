@@ -21,7 +21,6 @@ const riderMaterial = new THREE.MeshStandardMaterial({ color: 0xff4444 }); // Ri
 const bikeBody = new THREE.Mesh(new THREE.BoxGeometry(3, 0.5, 1), bikeMaterial);
 const wheelFront = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.2, 16), bikeMaterial);
 const wheelBack = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.2, 16), bikeMaterial);
-const rider = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.5, 0.5), riderMaterial);
 
 wheelFront.rotation.z = Math.PI / 2;
 wheelBack.rotation.z = Math.PI / 2;
