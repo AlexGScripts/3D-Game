@@ -1,4 +1,4 @@
-// Updated JavaScript with smaller kill bricks, more kill bricks, turned stages, and small gaps
+// Updated JavaScript with obby parts, smaller kill bricks, more kill bricks, turns, and gaps
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb);
