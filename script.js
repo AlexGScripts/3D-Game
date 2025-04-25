@@ -1,4 +1,4 @@
-// Updated JavaScript for faster player speed, semi-realistic bike, and visible player
+// Updated JavaScript for faster player speed, better jump distances, more checkpoints, and levels
 // Includes 10 checkpoints, smoother movement, spinning platforms that push player
 
 const scene = new THREE.Scene();
@@ -82,14 +82,34 @@ function createCheckpoint(x, y, z) {
 }
 
 let stageX = 0, stageY = 0;
-for (let i = 0; i < 100; i++) {
-  if (i % 10 === 0 && i / 10 < 10) createCheckpoint(stageX, stageY, 0);
-  else if (i % 15 === 0) createKillBrick(stageX, stageY, 0);
-  else if (i % 7 === 0) createSpinner(stageX, stageY, 0);
-  else createPlatform(stageX, stageY, 0);
-  stageX += 6;
-  if (i % 10 === 0) stageY += 1;
+let level = 1; // Track level progression
+const maxLevel = 3; // Example max levels
+
+// Create multiple levels with different layouts
+function createLevel() {
+  const levelWidth = 6; // Distance between each platform
+  for (let i = 0; i < 100; i++) {
+    if (i % 10 === 0 && i / 10 < 10) createCheckpoint(stageX, stageY, 0);
+    else if (i % 15 === 0 && Math.random() > 0.3) createKillBrick(stageX, stageY, 0); // Lower chance of kill brick
+    else if (i % 7 === 0 && Math.random() > 0.4) createSpinner(stageX, stageY, 0); // Lower chance of spinner
+    else createPlatform(stageX, stageY, 0);
+
+    stageX += levelWidth;
+    if (i % 10 === 0) stageY += 1;
+
+    if (i % 20 === 0 && stageY > 0 && Math.random() > 0.5) {
+      // Introduce new level after a few platforms
+      if (level < maxLevel) {
+        level++;
+        stageX = 0;
+        stageY = 0;
+        break;
+      }
+    }
+  }
 }
+
+createLevel();
 
 let keys = {};
 let velocityY = 0;
