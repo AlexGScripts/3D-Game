@@ -1,4 +1,4 @@
-// Updated JavaScript to fix the impossible spin-platform-kill-brick scenario
+// Updated JavaScript to fix camera and collision issues
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb);
@@ -164,12 +164,14 @@ document.getElementById('jumpButton').addEventListener('touchstart', () => {
   if (onGround) velocityY = 0.6;
 });
 
+// Collision check for player
 function checkCollision(a, b) {
   const aBox = new THREE.Box3().setFromObject(a);
   const bBox = new THREE.Box3().setFromObject(b);
   return aBox.intersectsBox(bBox);
 }
 
+// Check if player reaches a checkpoint
 function checkCheckpoint() {
   for (const cp of checkpoints) {
     if (checkCollision(playerGroup, cp)) {
@@ -225,6 +227,18 @@ function animate() {
     velocityY = 0;
   }
 
+  // Camera follows player
+  camera.position.x = playerGroup.position.x;
+  camera.position.y = playerGroup.position.y + 5;
+  camera.position.z = playerGroup.position.z + 10;
+  camera.lookAt(playerGroup.position);
+
   renderer.render(scene, camera);
 }
 animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
